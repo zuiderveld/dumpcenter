@@ -7,10 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/nav.css">
+    <script>document.documentElement.classList.add('dc-page-locked');</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="/config.js"></script>
-    <script src="/i18n.js?v=5"></script>
-    <script src="/app.js?v=5"></script>
+    <script src="/i18n.js?v=6"></script>
+    <script src="/app.js?v=6"></script>
     <style>
         :root {
             --white:   #ffffff;
@@ -298,7 +299,8 @@
 
     async function fetchServers() {
         try {
-            const res = await fetch('/api/servers');
+            const res = await fetch(DumpCenterApp.apiUrl('/api/servers'), { credentials: 'include' });
+            if (DumpCenterApp.handleAuthFailure(res.status)) return;
             const data = await res.json();
             servers = Array.isArray(data) ? data : (data.servers || []);
             license = data.license || license;
@@ -456,8 +458,12 @@
         firstLog = true;
     };
 
-    fetchServers();
-    DumpCenterApp.initPage({ userMenuId: 'user-menu' });
+    (async function () {
+        const session = await DumpCenterApp.guardPage();
+        if (!session) return;
+        fetchServers();
+        DumpCenterApp.initPage({ userMenuId: 'user-menu' });
+    })();
 </script>
 </body>
 </html>

@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/auth.css">
     <link rel="stylesheet" href="/nav.css">
     <script src="/config.js"></script>
-    <script src="/i18n.js?v=5"></script>
-    <script src="/app.js?v=5"></script>
+    <script src="/i18n.js?v=6"></script>
+    <script src="/app.js?v=6"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', system-ui, sans-serif; color: #f4f4f8; }
@@ -70,6 +70,8 @@
         oauth_member_failed: DumpCenterApp.t('login_err_discord'),
         member_lookup_failed: DumpCenterApp.t('login_err_discord'),
         discord_unreachable: DumpCenterApp.t('login_err_discord'),
+        no_access: DumpCenterApp.t('login_err_no_access'),
+        login_required: DumpCenterApp.t('login_err_login_required'),
     };
 
     const errBox = document.getElementById('login-error');
@@ -79,6 +81,14 @@
         errBox.style.display = 'block';
         errBox.textContent = errorMap[rawErr] || rawErr;
     }
+
+    (async function () {
+        const session = await DumpCenterApp.resolveSession();
+        if (session && session.user) {
+            window.location.replace(session.isAdmin ? '/admin.html' : '/panel.html');
+            return;
+        }
+    })();
 
     (async function setupLogin() {
         const btn = document.getElementById('discord-login');

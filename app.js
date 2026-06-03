@@ -247,6 +247,85 @@ window.DumpCenterApp = (function () {
         }
     }
 
+    async function resolveSession() {
+        let session = loadSession();
+        if (getApiBase()) {
+            try {
+                const live = await fetchAuthMe();
+                if (live && live.user) {
+                    saveSession(live);
+                    return live;
+                }
+                clearSession();
+                return null;
+            } catch {
+                return session && session.user ? session : null;
+            }
+        }
+        try {
+            const live = await fetchAuthMe();
+            if (live && live.user) {
+                saveSession(live);
+                return live;
+            }
+        } catch {}
+        return session && session.user ? session : null;
+    }
+
+    function lockPage() {
+        if (document.getElementById('dc-auth-guard')) return;
+        document.documentElement.classList.add('dc-page-locked');
+        const el = document.createElement('div');
+        el.id = 'dc-auth-guard';
+        el.className = 'dc-auth-guard';
+        el.innerHTML = `<div class="dc-auth-guard-spin"></div><span>${t('auth_checking')}</span>`;
+        document.body.appendChild(el);
+    }
+
+    function unlockPage() {
+        document.documentElement.classList.remove('dc-page-locked');
+        const el = document.getElementById('dc-auth-guard');
+        if (el) el.remove();
+    }
+
+    function loginRedirect(nextPath, error) {
+        const next = encodeURIComponent(nextPath || window.location.pathname + window.location.search);
+        let url = '/login.html?next=' + next;
+        if (error) url += '&error=' + encodeURIComponent(error);
+        window.location.replace(url);
+    }
+
+    async function guardPage(options) {
+        const opts = options || {};
+        lockPage();
+
+        const session = await resolveSession();
+        const returnPath = window.location.pathname + window.location.search;
+
+        if (!session || !session.user) {
+            loginRedirect(returnPath, 'login_required');
+            return null;
+        }
+
+        if (opts.requireAdmin && !session.isAdmin) {
+            clearSession();
+            loginRedirect(returnPath, 'no_access');
+            return null;
+        }
+
+        unlockPage();
+        return session;
+    }
+
+    function handleAuthFailure(status) {
+        if (status === 401 || status === 403) {
+            clearSession();
+            loginRedirect(window.location.pathname, status === 403 ? 'no_access' : 'login_required');
+            return true;
+        }
+        return false;
+    }
+
     function getLoginUrl(nextPath) {
         const next = encodeURIComponent(nextPath || getFrontendUrl() + '/auth-callback.html');
         return apiUrl('/auth/discord?next=' + next);
@@ -264,5 +343,6 @@ window.DumpCenterApp = (function () {
         getLang, setLang, t, applyI18n, mountLangSelect, mountUserMenu, initPage,
         apiUrl, getApiBase, getFrontendUrl, getLoginUrl,
         loadSession, saveSession, clearSession,
+        guardPage, lockPage, unlockPage, handleAuthFailure, resolveSession,
     };
 })();
