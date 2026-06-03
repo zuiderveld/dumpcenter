@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/panel", "destination": "/panel.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/server/:path*", "destination": "/server.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
+  ]
+}

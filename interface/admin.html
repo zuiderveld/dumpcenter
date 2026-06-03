@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dump Center — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="/i18n.js?v=4"></script>
+    <script src="/app.js?v=4"></script>
+    <style>
+        :root {
+            --bg:#0a0a0a; --surface:#111; --surface2:#181818; --border:#242424; --border2:#2e2e2e;
+            --text:#f5f5f5; --muted:#888; --accent:#22c55e; --red:#ef4444; --discord:#5865F2;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif}
+        .wrap{width:min(1180px,calc(100% - 40px));margin:0 auto}
+        nav{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+        .nav-inner{height:56px;display:flex;align-items:center;justify-content:space-between}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-decoration:none}
+        .btn-ghost{background:var(--surface);border:1px solid var(--border2);color:var(--text)}
+        .btn-green{background:var(--accent);color:#000;font-weight:700}
+        .btn-red{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171}
+        .btn-sm{padding:7px 12px;font-size:12px;border-radius:6px}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+        .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+        .card-body{padding:20px}
+        .inp{width:100%;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);padding:10px 13px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px}
+        .lbl{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .user-row{display:grid;grid-template-columns:1.4fr 1fr 120px 120px auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);margin-bottom:8px}
+        .user-name{font-weight:700;font-size:13px}
+        .user-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+        .badge{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600}
+        .badge-ok{background:rgba(34,197,94,.12);color:var(--accent);border:1px solid rgba(34,197,94,.22)}
+        .badge-off{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.22)}
+        .lang-select{background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;font-size:12px}
+        @media(max-width:900px){.user-row{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<nav>
+    <div class="wrap nav-inner">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="/panel" class="btn btn-ghost btn-sm" data-i18n="admin_go_panel">User panel</a>
+            <strong>Dump Center · Admin</strong>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <select id="lang-select" class="lang-select"><option value="nl">Nederlands</option><option value="en">English</option></select>
+            <div id="user-menu"></div>
+        </div>
+    </div>
+</nav>
+
+<main class="wrap" style="padding:36px 0 64px;">
+    <div style="margin-bottom:24px;">
+        <div style="color:var(--accent);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;" data-i18n="admin_kicker">Beheer</div>
+        <h1 style="font-size:26px;font-weight:800;margin-top:4px;" data-i18n="admin_title">Gebruikers & licenses</h1>
+        <p style="color:var(--muted);margin-top:8px;font-size:14px;" data-i18n="admin_subtitle">Voeg gebruikers toe en stel in hoeveel servers ze mogen dumpen.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong data-i18n="admin_add_user">Gebruiker toevoegen / license instellen</strong>
+        </div>
+        <div class="card-body">
+            <div class="form-grid">
+                <div>
+                    <label class="lbl" data-i18n="admin_discord_id">Discord ID</label>
+                    <input class="inp" id="inp-discord-id" placeholder="123456789012345678" />
+                </div>
+                <div>
+                    <label class="lbl" data-i18n="admin_license_label">License naam</label>
+                    <input class="inp" id="inp-license-label" placeholder="Bijv. Basic / Premium" />
+                </div>
+                <div>
+                    <label class="lbl" data-i18n="admin_max_servers">Max servers</label>
+                    <input class="inp" id="inp-max-servers" type="number" min="0" max="99" value="1" />
+                </div>
+                <div style="display:flex;align-items:end;">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding-bottom:10px;">
+                        <input type="checkbox" id="inp-active" checked /> <span data-i18n="admin_active">Actief</span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn btn-green" id="btn-save-user" style="margin-top:14px;" data-i18n="admin_save">Opslaan</button>
+            <p id="admin-msg" style="margin-top:10px;font-size:13px;color:var(--muted);"></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong data-i18n="admin_users_list">Gebruikers</strong>
+            <span id="users-count" class="badge badge-ok">0</span>
+        </div>
+        <div class="card-body" id="users-list">
+            <p style="color:var(--muted);font-size:13px;" data-i18n="admin_loading">Laden...</p>
+        </div>
+    </div>
+</main>
+
+<script>
+    let users = [];
+
+    function msg(text, ok=false) {
+        const el = document.getElementById('admin-msg');
+        el.textContent = text || '';
+        el.style.color = ok ? '#22c55e' : '#888';
+    }
+
+    async function loadUsers() {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            document.getElementById('users-list').innerHTML = `<p style="color:#f87171">${data.message || 'Error'}</p>`;
+            return;
+        }
+        users = data.users || [];
+        document.getElementById('users-count').textContent = users.length;
+        renderUsers();
+    }
+
+    function renderUsers() {
+        const box = document.getElementById('users-list');
+        if (!users.length) {
+            box.innerHTML = `<p style="color:var(--muted);font-size:13px;">${DumpCenterApp.t('admin_no_users')}</p>`;
+            return;
+        }
+        box.innerHTML = '';
+        users.forEach(u => {
+            const row = document.createElement('div');
+            row.className = 'user-row';
+            const name = u.global_name || u.username || u.discord_id;
+            row.innerHTML = `
+                <div>
+                    <div class="user-name">${name}</div>
+                    <div class="user-sub">${u.discord_id}</div>
+                </div>
+                <div><span class="badge ${u.active ? 'badge-ok' : 'badge-off'}">${u.license_label || 'License'}</span></div>
+                <div class="user-sub">${u.used_servers || 0} / ${u.max_servers || 0}</div>
+                <div class="user-sub">${u.last_login ? u.last_login.replace('T',' ').slice(0,16) : '-'}</div>
+                <div style="display:flex;gap:6px;">
+                    <button class="btn btn-ghost btn-sm" data-edit="${u.discord_id}">${DumpCenterApp.t('admin_edit')}</button>
+                    <button class="btn btn-red btn-sm" data-del="${u.discord_id}">${DumpCenterApp.t('admin_delete')}</button>
+                </div>`;
+            box.appendChild(row);
+        });
+
+        box.querySelectorAll('[data-edit]').forEach(btn => btn.onclick = () => editUser(btn.dataset.edit));
+        box.querySelectorAll('[data-del]').forEach(btn => btn.onclick = () => deleteUser(btn.dataset.del));
+    }
+
+    function editUser(id) {
+        const u = users.find(x => String(x.discord_id) === String(id));
+        if (!u) return;
+        document.getElementById('inp-discord-id').value = u.discord_id;
+        document.getElementById('inp-license-label').value = u.license_label || '';
+        document.getElementById('inp-max-servers').value = u.max_servers || 0;
+        document.getElementById('inp-active').checked = !!u.active;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteUser(id) {
+        if (!confirm(DumpCenterApp.t('admin_delete_confirm'))) return;
+        await fetch('/api/admin/users/' + encodeURIComponent(id), { method: 'DELETE' });
+        await loadUsers();
+        msg(DumpCenterApp.t('admin_deleted'), true);
+    }
+
+    document.getElementById('btn-save-user').onclick = async () => {
+        const body = {
+            discord_id: document.getElementById('inp-discord-id').value.trim(),
+            license_label: document.getElementById('inp-license-label').value.trim() || 'License',
+            max_servers: parseInt(document.getElementById('inp-max-servers').value || '0', 10),
+            active: document.getElementById('inp-active').checked,
+        };
+        if (!body.discord_id) return msg(DumpCenterApp.t('admin_discord_required'));
+        const res = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return msg(data.message || 'Error');
+        msg(DumpCenterApp.t('admin_saved'), true);
+        await loadUsers();
+    };
+
+    DumpCenterApp.initPage({ userMenuId: 'user-menu' });
+    loadUsers();
+</script>
+</body>
+</html>
