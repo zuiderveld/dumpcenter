@@ -6,9 +6,11 @@
     <title>Dump Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/nav.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="/i18n.js?v=4"></script>
-    <script src="/app.js?v=4"></script>
+    <script src="/config.js"></script>
+    <script src="/i18n.js?v=5"></script>
+    <script src="/app.js?v=5"></script>
     <style>
         /* ── FIVEVAULT-STYLE DESIGN TOKENS ── */
         :root {
@@ -203,7 +205,7 @@
                     <option value="en">English</option>
                 </select>
                 <div id="user-menu"></div>
-                <a href="/panel" class="btn btn-green" style="margin-left:2px;" data-i18n="nav_panel">Open Panel</a>
+                <a href="/panel" class="btn btn-green dc-nav-panel-btn" data-dc-panel-btn style="margin-left:2px;" data-i18n="nav_panel">Open Panel</a>
             </div>
         </div>
     </nav>

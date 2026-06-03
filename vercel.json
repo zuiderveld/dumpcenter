@@ -4,7 +4,8 @@
     { "source": "/login", "destination": "/login.html" },
     { "source": "/panel", "destination": "/panel.html" },
     { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/server/:path*", "destination": "/server.html" }
+    { "source": "/server/:path*", "destination": "/server.html" },
+    { "source": "/auth-callback", "destination": "/auth-callback.html" }
   ],
   "headers": [
     {
