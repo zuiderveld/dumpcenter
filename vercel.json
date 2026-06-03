@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "installCommand": "npm install",
+  "buildCommand": "echo Dump Center cloud build",
+  "outputDirectory": "interface",
+  "rewrites": [
+    { "source": "/auth/discord", "destination": "/api/auth/discord" },
+    { "source": "/auth/logout", "destination": "/api/auth/logout" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/panel", "destination": "/panel.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/server/:path*", "destination": "/server.html" },
+    { "source": "/auth-callback", "destination": "/auth-callback.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Frame-Options", "value": "DENY" }]
+    }
+  ]
+}
