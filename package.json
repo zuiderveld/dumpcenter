@@ -1,8 +1,0 @@
-{
-  "name": "dump-center",
-  "private": true,
-  "dependencies": {
-    "@vercel/kv": "^3.0.0",
-    "jose": "^5.9.6"
-  }
-}
